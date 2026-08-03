@@ -40,8 +40,16 @@ Term counts and PSD margin for each variant:
 | Bond-bond cross retained | 48/52 | 42/52 | 10/52 |
 | Bond-angle cross retained | 50/52 | 43/52 | 29/52 |
 | Angle-angle cross retained | 58/78 | excluded from fit | excluded from fit |
-| Torsion R² | — | — | 0.993 |
+| Torsion R² | not isolated separately¹ | 0.993 | 0.993 |
 | Min. Hessian eigenvalue (PSD margin) | 0.00101 | 0.00124 | 0.00100 |
+
+¹ Torsion fitting is a structurally separate code path from the
+bond/angle/cross-term fit in all three variants — it's folded into the
+overall training/validation R² above rather than reported on its own. It
+was explicitly isolated and spot-checked for the no-angle-angle and
+GROMACS-native variants specifically (confirming the bond-angle-cross
+redefinition between them didn't touch torsion fitting), not for the
+original full-cross run.
 
 Use the full-cross variant unless your target MD engine has no
 angle-angle-cross-term slot (GROMACS) — then use the no-angle-angle or
