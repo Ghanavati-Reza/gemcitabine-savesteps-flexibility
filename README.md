@@ -13,6 +13,38 @@ regenerate multi-gigabyte QM output first. It's an extract of one part of a
 larger pipeline; see [What this repo doesn't include](#what-this-repo-doesnt-include)
 below.
 
+## Results
+
+**Fixing the atom-ordering bug** (step 2 below) — same molecule, same
+fitting methodology, only the atom correspondence changed:
+
+| | Before fix | After fix |
+|---|---|---|
+| Training R² | 0.797 | **0.965** |
+| Validation R² | 0.798 | **0.966** |
+
+**Final fitted force-field variants** (step 3 below) — all three are
+PSD-guaranteed stable by construction (confirmed with a 2000-step/0.1 fs
+LAMMPS NVE run per variant, no thermostat):
+
+| | Full cross (`fit_cross_psd.py`) | No angle-angle (`fit_cross_psd_no_angle_angle.py`) | GROMACS-native (`fit_cross_psd_gromacs_compatible.py`) |
+|---|---|---|---|
+| Bond stretches retained | 27/27 | 27/27 | 27/27 |
+| Bends retained | 52/52 | 52/52 | 52/52 |
+| Bond-bond cross retained | 48/52 | 42/52 | 10/52 |
+| Bond-angle cross retained | 50/52 | 43/52 | 29/52 |
+| Angle-angle cross retained | 58/78 | excluded from fit | excluded from fit |
+| Torsion R² | — | — | 0.993 |
+| Training R² | **0.963** | 0.950 | 0.942 |
+| Validation R² | **0.964** | 0.951 | 0.943 |
+| Min. Hessian eigenvalue (PSD margin) | 0.00101 | 0.00124 | 0.00100 |
+| LAMMPS NVE TotEng range (200 fs) | **0.004 kcal/mol** | 0.004 kcal/mol | 0.0042 kcal/mol |
+
+Use the full-cross variant unless your target MD engine has no
+angle-angle-cross-term slot (GROMACS) — then use the no-angle-angle or
+GROMACS-native variant, trading ~1–2 R² points for portability. See step 3
+for what each variant actually changes.
+
 ## What "flexibility parameterization" means here
 
 Given a QM-optimized equilibrium geometry and a set of QM reference
@@ -70,14 +102,14 @@ different, connectivity-derived, interleaved order) is *not* the same as
 SAVESTEPS' own element-grouped atom ordering from step 1. If you index QM
 geometry/force arrays using SAVESTEPS' topology instance lists without
 remapping first, you silently pair the wrong atoms together — this
-produced a plausible-looking R² (0.797–0.798, comparable to what you'd
-expect from a genuinely working fit) for a long stretch of this project
-before being caught, and only surfaced because the resulting force field
-overheated dramatically in actual MD despite being mathematically
-guaranteed stable. After fixing (an explicit atom-by-atom permutation,
-determined via nearest-neighbor coordinate matching — `determine_orca_to_gemcit_permutation.py`,
-confirmed every atom matches at exactly 0.0000 Å): training R² 0.797 →
-0.965, validation 0.798 → 0.966.
+produced a plausible-looking R² (comparable to what you'd expect from a
+genuinely working fit — see [Results](#results) above) for a long stretch
+of this project before being caught, and only surfaced because the
+resulting force field overheated dramatically in actual MD despite being
+mathematically guaranteed stable. Fixed via an explicit atom-by-atom
+permutation, determined by nearest-neighbor coordinate matching
+(`determine_orca_to_gemcit_permutation.py`) — confirmed every atom matches
+at exactly 0.0000 Å.
 
 **If you adapt this to a different QM package or a different molecule:
 verify your geometry source's atom ordering against your topology tool's
@@ -125,19 +157,13 @@ one that actually produced the final numbers below.
    one 82×82 global block (30 bonds + 52 angles). Verified this is
    necessary via two real LAMMPS crashes with smaller-block attempts before
    landing here — start at the global block for any new molecule, don't
-   re-derive this the slow way.
-
-   **Result**: 27/27 stretches, 52/52 bends, 48/52 bond-bond, 50/52
-   bond-angle, 58/78 angle-angle cross terms retained; training R² = 0.963,
-   validation R² = 0.964; minimum Hessian eigenvalue 0.00101 (comfortably
-   PSD). A 2000-step/0.1 fs LAMMPS NVE run on the resulting force field
-   holds total energy to within 0.004 kcal/mol — the actual point of the
-   PSD guarantee.
+   re-derive this the slow way. See [Results](#results) above for the
+   fitted term counts and stability numbers this produces.
 
 4. **`fit_cross_psd_no_angle_angle.py`** — same method, angle-angle cross
    terms excluded from the fit itself (not just dropped after fitting) —
    useful if your target MD engine has no angle-angle cross-term slot
-   (GROMACS, for instance). Costs ~1.3 R² points, otherwise equally stable.
+   (GROMACS, for instance).
 5. **`fit_cross_psd_gromacs_compatible.py`** — redefines the bond-angle
    cross term to GROMACS's own r13-coupled functional form (`U =
    k(r13-r13eq)[(r1-r1eq)+(r2-r2eq)]`, coupled to the direct distance
