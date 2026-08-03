@@ -27,16 +27,21 @@ LAMMPS NVE run per variant, no thermostat):
 
 | | Full cross (`fit_cross_psd.py`) | No angle-angle (`fit_cross_psd_no_angle_angle.py`) | GROMACS-native (`fit_cross_psd_gromacs_compatible.py`) |
 |---|---|---|---|
+| Training R² | **0.963** | 0.950 | 0.942 |
+| Validation R² | **0.964** | 0.951 | 0.943 |
+| LAMMPS NVE TotEng range (200 fs) | **0.004 kcal/mol** | 0.004 kcal/mol | 0.0042 kcal/mol |
+
+Term counts and PSD margin for each variant:
+
+| | Full cross | No angle-angle | GROMACS-native |
+|---|---|---|---|
 | Bond stretches retained | 27/27 | 27/27 | 27/27 |
 | Bends retained | 52/52 | 52/52 | 52/52 |
 | Bond-bond cross retained | 48/52 | 42/52 | 10/52 |
 | Bond-angle cross retained | 50/52 | 43/52 | 29/52 |
 | Angle-angle cross retained | 58/78 | excluded from fit | excluded from fit |
 | Torsion R² | — | — | 0.993 |
-| Training R² | **0.963** | 0.950 | 0.942 |
-| Validation R² | **0.964** | 0.951 | 0.943 |
 | Min. Hessian eigenvalue (PSD margin) | 0.00101 | 0.00124 | 0.00100 |
-| LAMMPS NVE TotEng range (200 fs) | **0.004 kcal/mol** | 0.004 kcal/mol | 0.0042 kcal/mol |
 
 Use the full-cross variant unless your target MD engine has no
 angle-angle-cross-term slot (GROMACS) — then use the no-angle-angle or
