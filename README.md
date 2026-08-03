@@ -21,14 +21,6 @@ below.
 
 ## Results
 
-**Fixing the atom-ordering bug** (step 2 below) — same molecule, same
-fitting methodology, only the atom correspondence changed:
-
-| | Before fix | After fix |
-|---|---|---|
-| Training R² | 0.797 | **0.965** |
-| Validation R² | 0.798 | **0.966** |
-
 **Final fitted force-field variants** (step 3 below) — all three are
 PSD-guaranteed stable by construction (confirmed with a 2000-step/0.1 fs
 LAMMPS NVE run per variant, no thermostat):
@@ -109,8 +101,8 @@ SAVESTEPS' own element-grouped atom ordering from step 1. If you index QM
 geometry/force arrays using SAVESTEPS' topology instance lists without
 remapping first, you silently pair the wrong atoms together — this
 produced a plausible-looking R² (comparable to what you'd expect from a
-genuinely working fit — see [Results](#results) above) for a long stretch
-of this project before being caught, and only surfaced because the
+genuinely working fit) for a long stretch of this project before being
+caught, and only surfaced because the
 resulting force field overheated dramatically in actual MD despite being
 mathematically guaranteed stable. Fixed via an explicit atom-by-atom
 permutation, determined by nearest-neighbor coordinate matching
