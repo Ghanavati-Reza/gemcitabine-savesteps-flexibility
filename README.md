@@ -13,6 +13,12 @@ regenerate multi-gigabyte QM output first. It's an extract of one part of a
 larger pipeline; see [What this repo doesn't include](#what-this-repo-doesnt-include)
 below.
 
+<p align="center">
+  <img src="gemcitabine.png" alt="2D structure of gemcitabine" width="500">
+  <br>
+  <em>Gemcitabine (2′,2′-difluoro-2′-deoxycytidine), C9H11F2N3O4 — rendered with RDKit.</em>
+</p>
+
 ## Results
 
 **Fixing the atom-ordering bug** (step 2 below) — same molecule, same
